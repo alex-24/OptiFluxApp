@@ -25,8 +25,8 @@ class CameraPreviewViewModel : ViewModel() {
         }
     }
 
-    suspend fun bindToCamera(appContext: Context, lifecycleOwner: LifecycleOwner) {
-        val processCameraProvider = ProcessCameraProvider.awaitInstance(appContext)
+    suspend fun bindToCamera(applicationContext: Context, lifecycleOwner: LifecycleOwner) {
+        val processCameraProvider = ProcessCameraProvider.awaitInstance(applicationContext)
         processCameraProvider.bindToLifecycle(
             lifecycleOwner = lifecycleOwner,
             cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA,
