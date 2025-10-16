@@ -25,7 +25,9 @@ A real-time optical flow visualization app for Android that computes and display
         <em>Optical Flow Visualization</em>
       </td>
       <td align="center">
-        <video src="captures/Screen_recording.mp4" width="350" controls>
+        <div width="350">
+        https://github.com/alex-24/OptiFluxApp/blob/main/captures/Screen_recording.mp4
+        </div>
           <a href="captures/Screen_recording.mp4">View Demo Video</a>
         </video>
         <br/>
