@@ -7,7 +7,7 @@ class OptiFluxApplication: Application() {
 
     override fun onCreate() {
         super.onCreate()
-        //System.loadLibrary("optifluxapp")
-        ReLinker.loadLibrary(this, "optifluxapp")
+        //System.loadLibrary("optical_flow_calculator")
+        ReLinker.loadLibrary(this, "optical_flow_calculator")
     }
 }
