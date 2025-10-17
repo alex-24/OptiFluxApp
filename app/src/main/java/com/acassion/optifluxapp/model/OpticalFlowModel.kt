@@ -4,8 +4,8 @@ import com.acassion.optifluxapp.utils.Constants
 
 data class OpticalFlowModel(
     val vectors: FloatArray = FloatArray(0),
-    val frameWidth: Int = Constants.frameWidth,
-    val frameHeight: Int = Constants.frameHeight,
+    val frameWidth: Int = 0,
+    val frameHeight: Int = 0,
     val cellSize: Int = Constants.cellSize,
     val windowSize: Int = Constants.windowSize,
     val fps: Int = Constants.fps,
