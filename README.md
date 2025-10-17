@@ -16,14 +16,24 @@ A real-time optical flow visualization app for Android that computes and display
 
 ## Demo
 
-<img src="captures/Screenshot.png" width="280" alt="OptiFlux Screenshot"/>
+### Screenshot
+<p align="center">
+  <img src="captures/Screenshot.png" width="400" alt="OptiFlux Screenshot"/>
+  <br/>
+  <em>Optical Flow Visualization with Color-Coded Motion Vectors</em>
+</p>
+
+### Video Demonstrations
+
+#### With Camera View
+Real-time optical flow overlay on live camera feed showing motion tracking:
 
 https://github.com/user-attachments/assets/7db513c4-d08e-4a7e-b2cd-56516ce6c8fe
 
+#### Flow Overlay Only
+Isolated optical flow vectors demonstrating the algorithm's motion detection:
+
 https://github.com/user-attachments/assets/eb3ea1b1-6cf5-4fa7-a4af-39a4c370763a
-
-
-> **Note**: If videos don't play inline, click the links above to view them directly.
 
 ## Technical Details
 
