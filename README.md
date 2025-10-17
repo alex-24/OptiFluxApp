@@ -16,31 +16,12 @@ A real-time optical flow visualization app for Android that computes and display
 
 ## Demo
 
-<div align="center">
-  <table>
-    <tr>
-      <td align="center">
-        <img src="captures/Screenshot.png" width="280" alt="OptiFlux Screenshot"/>
-        <br/>
-        <em>Optical Flow Visualization</em>
-      </td>
-      <td align="center">
-        <video src="captures/with_camera_view.mp4" width="280" controls>
-          <a href="captures/with_camera_view.mp4">View Demo Video 1</a>
-        </video>
-        <br/>
-        <em>With Camera View</em>
-      </td>
-      <td align="center">
-        <video src="captures/without_camera_view.mp4" width="280" controls>
-          <a href="captures/without_camera_view.mp4">View Demo Video 2</a>
-        </video>
-        <br/>
-        <em>Flow Overlay Only</em>
-      </td>
-    </tr>
-  </table>
-</div>
+<img src="captures/Screenshot.png" width="280" alt="OptiFlux Screenshot"/>
+
+https://github.com/user-attachments/assets/7db513c4-d08e-4a7e-b2cd-56516ce6c8fe
+
+https://github.com/user-attachments/assets/eb3ea1b1-6cf5-4fa7-a4af-39a4c370763a
+
 
 > **Note**: If videos don't play inline, click the links above to view them directly.
 
