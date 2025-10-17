@@ -8,11 +8,11 @@ A real-time optical flow visualization app for Android that computes and display
 - **Native C++ Implementation**: High-performance optical flow calculations using JNI
 - **Dual Camera Support**: Works with both front and back cameras with automatic orientation handling
 - **Visual Flow Representation**: Color-coded vectors showing motion magnitude and direction
-  - White (semi-transparent): Low motion (< 0.5)
-  - Yellow: Medium motion (0.5 - 2.0)
-  - Red: High motion (> 2.0)
-- **Adaptive Resolution**: Automatically handles different camera resolutions
-- **Rotation Aware**: Correctly transforms flow vectors for any device orientation
+  - Filtered out: Very low (< 1.0) or aberrant (> 6.0) motion
+  - White (60% opacity, 2px): Medium motion (1.0 - 3.0)
+  - White (100% opacity, 4px): High motion (> 3.0)
+- **Adaptive Resolution**: Automatically handles different camera resolutions with proper viewport scaling
+- **Rotation Aware**: Correctly transforms flow vectors for any device orientation with crop compensation
 
 ## Demo
 
@@ -20,23 +20,29 @@ A real-time optical flow visualization app for Android that computes and display
   <table>
     <tr>
       <td align="center">
-        <img src="captures/Screenshot.png" width="350" alt="OptiFlux Screenshot"/>
+        <img src="captures/Screenshot.png" width="280" alt="OptiFlux Screenshot"/>
         <br/>
         <em>Optical Flow Visualization</em>
       </td>
       <td align="center">
-        <div width="350" controls>
-          https://github.com/user-attachments/assets/e1ccdd83-dff3-4cc3-8067-c6afa0410d08
-          <a href="captures/Screen_recording.mp4">View Demo Video</a>
-        </div>
+        <video src="captures/with_camera_view.mp4" width="280" controls>
+          <a href="captures/with_camera_view.mp4">View Demo Video 1</a>
+        </video>
         <br/>
-        <em>Real-time Demo</em>
+        <em>With Camera View</em>
+      </td>
+      <td align="center">
+        <video src="captures/without_camera_view.mp4" width="280" controls>
+          <a href="captures/without_camera_view.mp4">View Demo Video 2</a>
+        </video>
+        <br/>
+        <em>Flow Overlay Only</em>
       </td>
     </tr>
   </table>
 </div>
 
-> **Note**: If the video doesn't play inline, click [here](captures/Screen_recording.mp4) to view it.
+> **Note**: If videos don't play inline, click the links above to view them directly.
 
 ## Technical Details
 
@@ -140,9 +146,11 @@ android {
 ## Usage
 
 1. **Grant Camera Permission**: On first launch, allow camera access
-2. **View Optical Flow**: Motion vectors appear as colored lines overlaid on the camera feed
+2. **View Optical Flow**: Motion vectors appear as white lines overlaid on the camera feed
 3. **Move Objects**: Wave your hand or move objects to see flow vectors
-4. **Toggle Camera** (if implemented): Switch between front and back cameras
+   - Thicker, brighter lines indicate faster motion
+   - Very slow or aberrant motion is automatically filtered out
+4. **Camera Support**: Works with both front (with mirroring) and back cameras
 
 ## Implementation Highlights
 
@@ -166,9 +174,10 @@ void computeFlow(
 
 The app handles complex transformations to map flow vectors from camera space to screen space:
 
-- **Front Camera**: Horizontal mirroring + rotation
-- **Back Camera**: Rotation only
+- **Front Camera**: Horizontal mirroring + rotation + crop compensation
+- **Back Camera**: Rotation + crop compensation
 - **Supported Rotations**: 0°, 90°, 180°, 270°
+- **Scale Modes**: FILL_CENTER with automatic crop offset calculation for pixel-perfect alignment
 
 ### Performance Optimizations
 
@@ -176,6 +185,8 @@ The app handles complex transformations to map flow vectors from camera space to
 - **Native Processing**: C++ for compute-intensive operations
 - **Efficient Buffer Management**: Reuses ByteArrays for image data
 - **Adaptive Grid**: Configurable cell size for performance tuning
+- **Outlier Filtering**: Filters aberrant vectors (magnitude < 1.0 or > 6.0) to reduce visual noise
+- **Viewport Scaling**: Proper coordinate transformation with crop compensation for accurate overlay alignment
 
 ## Dependencies
 
@@ -203,9 +214,10 @@ object Constants {
 ```
 
 **Performance Tips**:
-- Increase `cellSize` for better performance but sparser flow
-- Increase `windowSize` for smoother but slower flow
+- Increase `cellSize` for better performance but sparser flow (default: 12)
+- Increase `windowSize` for smoother but slower flow (default: 5)
 - Lower values = more vectors but higher CPU usage
+- Outlier filtering automatically removes unreliable vectors (magnitude < 1.0 or > 6.0)
 
 ## Troubleshooting
 
@@ -214,14 +226,16 @@ object Constants {
 - Check CMakeLists.txt has no trailing commas in `add_library()`
 
 ### No Flow Vectors Appearing
-- Check Logcat for "OpticalFlowAnalyzer" messages
+- Check Logcat for "OpticalFlowAnalyzer" and "CameraViewScreen" messages
 - Verify camera resolution is logged correctly
-- Ensure sufficient lighting and motion
+- Ensure sufficient lighting and motion (magnitude must be between 1.0 and 6.0)
+- Very low motion (< 1 pixel/frame) is automatically filtered out
 
 ### Vectors in Wrong Position
-- Check rotation value in logs
+- Check rotation value in logs (should show EffectiveFrame, Scale, and FrameCrop)
 - Verify `isFrontCamera` flag matches actual camera
-- Review coordinate transformation logic
+- Review coordinate transformation logic and crop compensation
+- Ensure both Preview and ImageAnalysis use the same ResolutionSelector
 
 ## License
 
