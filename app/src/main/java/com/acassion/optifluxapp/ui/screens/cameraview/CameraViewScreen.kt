@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Button
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -100,12 +101,6 @@ fun CameraAccessGranted(
                 // Calculate crop offsets (what's cut off from the frame)
                 val frameCropX = (scaledFrameWidth - w) / 2f
                 val frameCropY = (scaledFrameHeight - h) / 2f
-                
-                // For coordinate transformation, we need to account for the crop
-                val viewportWidth = w
-                val viewportHeight = h
-                val offsetX = 0f
-                val offsetY = 0f
                 
                 if (opticalFlowState.value.vectors.isNotEmpty()) {
                     android.util.Log.d("CameraViewScreen", 
@@ -206,7 +201,7 @@ fun CameraAccessGranted(
 
                     val strokeColor: Color
                     val strokeWidth: Float
-                    if (magnitude < 1f) {
+                    if (magnitude < 1f || magnitude > 6f) {
                         //Color.White.copy(alpha = 0.2f)
                         strokeColor = Color.Transparent
                         strokeWidth = 0f
