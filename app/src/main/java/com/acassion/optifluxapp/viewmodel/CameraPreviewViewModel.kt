@@ -6,6 +6,8 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceRequest
+import androidx.camera.core.resolutionselector.AspectRatioStrategy
+import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.lifecycle.awaitInstance
 import androidx.lifecycle.LifecycleOwner
@@ -31,20 +33,27 @@ class CameraPreviewViewModel : ViewModel() {
     val opticalFlow = _opticalFlowModel.asStateFlow()
     
     // Camera selector state - false for back camera by default
-    private val _isFrontCamera = MutableStateFlow(true)
+    private val _isFrontCamera = MutableStateFlow(false)
     val isFrontCamera = _isFrontCamera.asStateFlow()
 
-    private val cameraPreviewUseCase = Preview.Builder().build().apply {
-        setSurfaceProvider { newSurfaceRequest ->
-            _surfaceRequest.update { newSurfaceRequest }
+    private val resolutionSelector = ResolutionSelector.Builder()
+        .setAspectRatioStrategy(AspectRatioStrategy.RATIO_16_9_FALLBACK_AUTO_STRATEGY)
+        .build()
+
+    private val cameraPreviewUseCase = Preview.Builder()
+        .setResolutionSelector(resolutionSelector)
+        .build().apply {
+            setSurfaceProvider { newSurfaceRequest ->
+                _surfaceRequest.update { newSurfaceRequest }
+            }
         }
-    }
 
     private var lastTimeStep = System.nanoTime()
     private var frames = 0
 
     private val cameraAnalysisUseCase = ImageAnalysis
         .Builder()
+        .setResolutionSelector(resolutionSelector)
         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
         .build().apply {
             setAnalyzer(

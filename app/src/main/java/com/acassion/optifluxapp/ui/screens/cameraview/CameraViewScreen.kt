@@ -1,6 +1,7 @@
 package com.acassion.optifluxapp.ui.screens.cameraview
 
 import androidx.camera.compose.CameraXViewfinder
+import androidx.camera.viewfinder.core.ImplementationMode
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,7 +10,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Button
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -67,7 +67,8 @@ fun CameraAccessGranted(
         Box {
             CameraXViewfinder(
                 surfaceRequest = surfaceRequest.value!!,
-                modifier = modifier
+                modifier = modifier,
+                implementationMode = ImplementationMode.EMBEDDED
             )
             /*Surface(
                 modifier = Modifier.fillMaxSize(),
@@ -80,6 +81,39 @@ fun CameraAccessGranted(
                 val fy = opticalFlowState.value.frameHeight.toFloat()
                 val rotation = opticalFlowState.value.rotation
                 val isFrontCamera = opticalFlowState.value.isFrontCamera
+                
+                // Calculate the actual viewport dimensions considering rotation
+                // When rotated 270° or 90°, frame dimensions are swapped relative to screen
+                val isRotated = rotation == 90 || rotation == 270
+                val effectiveFrameWidth = if (isRotated) fy else fx
+                val effectiveFrameHeight = if (isRotated) fx else fy
+                
+                // FILL_CENTER mode: scale to fill entire canvas, crop what doesn't fit
+                val scaleToFillWidth = w / effectiveFrameWidth
+                val scaleToFillHeight = h / effectiveFrameHeight
+                val scale = maxOf(scaleToFillWidth, scaleToFillHeight)  // Use MAX to fill
+                
+                // Calculate which portion of the frame is visible after cropping
+                val scaledFrameWidth = effectiveFrameWidth * scale
+                val scaledFrameHeight = effectiveFrameHeight * scale
+                
+                // Calculate crop offsets (what's cut off from the frame)
+                val frameCropX = (scaledFrameWidth - w) / 2f
+                val frameCropY = (scaledFrameHeight - h) / 2f
+                
+                // For coordinate transformation, we need to account for the crop
+                val viewportWidth = w
+                val viewportHeight = h
+                val offsetX = 0f
+                val offsetY = 0f
+                
+                if (opticalFlowState.value.vectors.isNotEmpty()) {
+                    android.util.Log.d("CameraViewScreen", 
+                        "Canvas: ${w}x${h}, Frame: ${fx}x${fy}, Rotation: $rotation°, " +
+                        "EffectiveFrame: ${effectiveFrameWidth}x${effectiveFrameHeight}, " +
+                        "Scale: $scale, ScaledFrame: ${scaledFrameWidth}x${scaledFrameHeight}, " +
+                        "FrameCrop: (${frameCropX}, ${frameCropY})")
+                }
 
                 opticalFlowState.value.vectors.toList().chunked(5).forEach { vector ->
                     var frameX = vector[0]
@@ -88,85 +122,84 @@ fun CameraAccessGranted(
                     var frameV = vector[3]
                     val magnitude = vector[4]
 
-                    // Apply rotation transformation
-                    // For front camera, we need to account for mirroring in the rotation
+                    // Apply rotation transformation with proper scaling and crop offsets
                     val (screenX, screenY, screenU, screenV) = when {
                         isFrontCamera && rotation == 270 -> {
                             // Front camera 270°: mirror then rotate
-                            // Effective transformation: (x,y) -> (width-y, width-x) 
-                            val scaleX = w / fy
-                            val scaleY = h / fx
+                            // Scale to fill, then subtract the crop offset
+                            val sx = (fy - frameY) * scale - frameCropX
+                            val sy = (fx - frameX) * scale - frameCropY
                             listOf(
-                                (fy - frameY) * scaleX,
-                                (fx - frameX) * scaleY,
-                                frameV * scaleX,
-                                -frameU * scaleY
+                                sx,
+                                sy,
+                                frameV * scale,
+                                -frameU * scale
                             )
                         }
                         isFrontCamera && rotation == 90 -> {
                             // Front camera 90°
-                            val scaleX = w / fy
-                            val scaleY = h / fx
+                            val sx = frameY * scale - frameCropX
+                            val sy = frameX * scale - frameCropY
                             listOf(
-                                frameY * scaleX,
-                                frameX * scaleY,
-                                frameV * scaleX,
-                                frameU * scaleY
+                                sx,
+                                sy,
+                                frameV * scale,
+                                frameU * scale
                             )
                         }
                         isFrontCamera && rotation == 0 -> {
                             // Front camera no rotation - just mirror
-                            val scaleX = w / fx
-                            val scaleY = h / fy
+                            val sx = (fx - frameX) * scale - frameCropX
+                            val sy = frameY * scale - frameCropY
                             listOf(
-                                (fx - frameX) * scaleX,
-                                frameY * scaleY,
-                                -frameU * scaleX,
-                                frameV * scaleY
+                                sx,
+                                sy,
+                                frameU * scale,
+                                frameV * scale
                             )
                         }
                         rotation == 0 -> {
                             // Back camera, no rotation
-                            val scaleX = w / fx
-                            val scaleY = h / fy
+                            val sx = frameX * scale - frameCropX
+                            val sy = frameY * scale - frameCropY
                             listOf(
-                                frameX * scaleX,
-                                frameY * scaleY,
-                                frameU * scaleX,
-                                frameV * scaleY
+                                sx,
+                                sy,
+                                -frameU * scale,
+                                frameV * scale
                             )
                         }
                         rotation == 90 -> {
                             // Back camera 90° clockwise
-                            val scaleX = w / fy
-                            val scaleY = h / fx
+                            val sx = (fy - frameY) * scale - frameCropX
+                            val sy = frameX * scale - frameCropY
                             listOf(
-                                (fy - frameY) * scaleX,
-                                frameX * scaleY,
-                                frameV * scaleX,
-                                frameU * scaleY
+                                sx,
+                                sy,
+                                frameV * scale,
+                                frameU * scale
                             )
                         }
                         rotation == 270 -> {
                             // Back camera 270° clockwise
-                            val scaleX = w / fy
-                            val scaleY = h / fx
+                            val sx = frameY * scale - frameCropX
+                            val sy = (fx - frameX) * scale - frameCropY
                             listOf(
-                                frameY * scaleX,
-                                (fx - frameX) * scaleY,
-                                frameV * scaleX,
-                                -frameU * scaleY
+                                sx,
+                                sy,
+                                frameV * scale,
+                                -frameU * scale
                             )
                         }
                         else -> {
                             // Fallback
-                            val scaleX = w / fx
-                            val scaleY = h / fy
+                            val sx = frameX * scale - frameCropX
+                            val sy = frameY * scale - frameCropY
                             listOf(
-                                frameX * scaleX,
-                                frameY * scaleY,
-                                frameU * scaleX,
-                                frameV * scaleY
+                                sx,
+                                sy,
+                                frameU * scale,
+                                frameV * scale
                             )
                         }
                     }
