@@ -208,14 +208,14 @@ Edit `Constants.kt` to adjust optical flow parameters:
 
 ```kotlin
 object Constants {
-    const val cellSize: Int = 12      // Grid spacing (pixels)
+    const val cellSize: Int = 15      // Grid spacing (pixels)
     const val windowSize: Int = 5     // Neighborhood radius (pixels)
 }
 ```
 
 **Performance Tips**:
-- Increase `cellSize` for better performance but sparser flow (default: 12)
-- Increase `windowSize` for smoother but slower flow (default: 5)
+- Increase `cellSize` for better performance but sparser flow
+- Increase `windowSize` for smoother but slower flow
 - Lower values = more vectors but higher CPU usage
 - Outlier filtering automatically removes unreliable vectors (magnitude < 1.0 or > 6.0)
 
