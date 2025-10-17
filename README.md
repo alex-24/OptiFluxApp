@@ -25,11 +25,10 @@ A real-time optical flow visualization app for Android that computes and display
         <em>Optical Flow Visualization</em>
       </td>
       <td align="center">
-        <div width="350">
-        https://github.com/alex-24/OptiFluxApp/blob/main/captures/Screen_recording.mp4
-        </div>
+        <div width="350" controls>
+          https://github.com/user-attachments/assets/e1ccdd83-dff3-4cc3-8067-c6afa0410d08
           <a href="captures/Screen_recording.mp4">View Demo Video</a>
-        </video>
+        </div>
         <br/>
         <em>Real-time Demo</em>
       </td>
@@ -237,4 +236,5 @@ Alexis Cassion
 - Lucas-Kanade optical flow algorithm
 - Android CameraX team
 - Jetpack Compose community
+
 
