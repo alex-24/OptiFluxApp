@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Button
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -68,6 +69,10 @@ fun CameraAccessGranted(
                 surfaceRequest = surfaceRequest.value!!,
                 modifier = modifier
             )
+            /*Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = Color.Black
+            )  {  }*/
             Canvas(modifier = Modifier.fillMaxSize().pointerInput(Unit) {}) {
                 val w = size.width
                 val h = size.height
@@ -91,55 +96,97 @@ fun CameraAccessGranted(
                             // Effective transformation: (x,y) -> (width-y, width-x) 
                             val scaleX = w / fy
                             val scaleY = h / fx
-                            listOf((fy - frameY) * scaleX, (fx - frameX) * scaleY, -frameV * scaleX, -frameU * scaleY)
+                            listOf(
+                                (fy - frameY) * scaleX,
+                                (fx - frameX) * scaleY,
+                                frameV * scaleX,
+                                -frameU * scaleY
+                            )
                         }
                         isFrontCamera && rotation == 90 -> {
                             // Front camera 90°
                             val scaleX = w / fy
                             val scaleY = h / fx
-                            listOf(frameY * scaleX, frameX * scaleY, frameV * scaleX, frameU * scaleY)
+                            listOf(
+                                frameY * scaleX,
+                                frameX * scaleY,
+                                frameV * scaleX,
+                                frameU * scaleY
+                            )
                         }
                         isFrontCamera && rotation == 0 -> {
                             // Front camera no rotation - just mirror
                             val scaleX = w / fx
                             val scaleY = h / fy
-                            listOf((fx - frameX) * scaleX, frameY * scaleY, -frameU * scaleX, frameV * scaleY)
+                            listOf(
+                                (fx - frameX) * scaleX,
+                                frameY * scaleY,
+                                -frameU * scaleX,
+                                frameV * scaleY
+                            )
                         }
                         rotation == 0 -> {
                             // Back camera, no rotation
                             val scaleX = w / fx
                             val scaleY = h / fy
-                            listOf(frameX * scaleX, frameY * scaleY, frameU * scaleX, frameV * scaleY)
+                            listOf(
+                                frameX * scaleX,
+                                frameY * scaleY,
+                                frameU * scaleX,
+                                frameV * scaleY
+                            )
                         }
                         rotation == 90 -> {
                             // Back camera 90° clockwise
                             val scaleX = w / fy
                             val scaleY = h / fx
-                            listOf((fy - frameY) * scaleX, frameX * scaleY, -frameV * scaleX, frameU * scaleY)
+                            listOf(
+                                (fy - frameY) * scaleX,
+                                frameX * scaleY,
+                                frameV * scaleX,
+                                frameU * scaleY
+                            )
                         }
                         rotation == 270 -> {
                             // Back camera 270° clockwise
                             val scaleX = w / fy
                             val scaleY = h / fx
-                            listOf(frameY * scaleX, (fx - frameX) * scaleY, frameV * scaleX, -frameU * scaleY)
+                            listOf(
+                                frameY * scaleX,
+                                (fx - frameX) * scaleY,
+                                frameV * scaleX,
+                                -frameU * scaleY
+                            )
                         }
                         else -> {
                             // Fallback
                             val scaleX = w / fx
                             val scaleY = h / fy
-                            listOf(frameX * scaleX, frameY * scaleY, frameU * scaleX, frameV * scaleY)
+                            listOf(
+                                frameX * scaleX,
+                                frameY * scaleY,
+                                frameU * scaleX,
+                                frameV * scaleY
+                            )
                         }
                     }
 
-                    val color = if (magnitude < 0.5f) {
-                        Color.White.copy(alpha = 0.2f)
-                    } else if (magnitude < 2f) {
-                        Color.White.copy(alpha = 0.6f)
+                    val strokeColor: Color
+                    val strokeWidth: Float
+                    if (magnitude < 1f) {
+                        //Color.White.copy(alpha = 0.2f)
+                        strokeColor = Color.Transparent
+                        strokeWidth = 0f
+                    } else if (magnitude < 3f) {
+                        strokeColor = Color.White.copy(alpha = 0.6f)
+                        //strokeColor = Color.Yellow
+                        strokeWidth = 2f
                     } else {
-                        Color.White
+                        strokeColor = Color.White
+                        strokeWidth = 4f
                     }
                     drawLine(
-                        color = color,
+                        color = strokeColor,
                         start = Offset(
                             x = screenX,
                             y = screenY
@@ -148,12 +195,12 @@ fun CameraAccessGranted(
                             x = screenX+screenU*6f,
                             y = screenY+screenV*6f
                         ),
-                        strokeWidth = 2f
+                        strokeWidth = strokeWidth
                     )
                     // small arrow head
                     drawCircle(
-                        color = color,
-                        radius = 2f,
+                        color = strokeColor,
+                        radius = strokeWidth,
                         center = Offset(
                             x = screenX,
                             y = screenY

@@ -31,7 +31,7 @@ class CameraPreviewViewModel : ViewModel() {
     val opticalFlow = _opticalFlowModel.asStateFlow()
     
     // Camera selector state - false for back camera by default
-    private val _isFrontCamera = MutableStateFlow(false)
+    private val _isFrontCamera = MutableStateFlow(true)
     val isFrontCamera = _isFrontCamera.asStateFlow()
 
     private val cameraPreviewUseCase = Preview.Builder().build().apply {
